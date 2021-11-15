@@ -99,6 +99,33 @@ client.connect(err => {
     })
 
 
+    // get all orders
+    app.get("/allOrders", async (req, res) => {
+        const orders = await orderCollection.find({}).toArray();
+        res.json(orders);
+    })
+
+    //  update status
+    app.put("/allOrders/:id", async (req, res) => {
+        const id = req.params.id;
+        const updateStatus = req.body;
+        const filter = { _id: ObjectId(id) };
+        const updateDoc = {
+            $set: {
+                status: updateStatus.status,
+            },
+        };
+        const result = await orderCollection.updateOne(
+            filter,
+            updateDoc,
+        );
+        res.json(result);
+    });
+    //add new item
+    app.post('/addItem', async (req, res) => {
+        const newItem = await productCollection.insertOne(req.body);
+        res.json(newItem);
+    })
     // client.close();
 });
 
