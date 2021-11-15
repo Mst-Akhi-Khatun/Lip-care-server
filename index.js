@@ -126,6 +126,14 @@ client.connect(err => {
         const newItem = await productCollection.insertOne(req.body);
         res.json(newItem);
     })
+
+    //delete a product 
+    app.delete('/removeItem/:id', async (req, res) => {
+        const id = req.params.id;
+        const result = await productCollection.deleteOne({ _id: ObjectId(id) });
+        res.json(result);
+    })
+
     // client.close();
 });
 
