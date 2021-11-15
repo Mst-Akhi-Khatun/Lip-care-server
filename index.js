@@ -39,7 +39,19 @@ client.connect(err => {
         res.json(product);
     })
 
+    //get my order
+    app.get('/myOrders/:email', async (req, res) => {
+        const email = req.params.email;
+        const order = await orderCollection.find({ email: email }).toArray();
+        res.json(order);
+    })
 
+    //remove order
+    app.delete('/removeOrder/:id', async (req, res) => {
+        const id = req.params.id;
+        const result = await orderCollection.deleteOne({ _id: ObjectId(id) });
+        res.json(result);
+    })
     // save user
     app.post('/user', async (req, res) => {
         const user = await usersCollection.insertOne(req.body)
