@@ -16,7 +16,75 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 client.connect(err => {
     const productCollection = client.db("lipCareShop").collection("products");
+    const usersCollection = client.db("lipCareShop").collection("users");
+    const orderCollection = client.db("lipCareShop").collection("orders");
+    const reviewCollection = client.db("lipCareShop").collection("reviews");
 
+
+    // get all products
+    app.get("/products", async (req, res) => {
+        const products = await productCollection.find({}).toArray();
+        res.json(products);
+    })
+    // get single product
+    app.get("/product/:id", async (req, res) => {
+        const id = req.params.id;
+        const product = await productCollection.findOne({ _id: ObjectId(id) });
+        res.json(product);
+    })
+
+    // order single product
+    app.post("/order", async (req, res) => {
+        const product = await orderCollection.insertOne(req.body);
+        res.json(product);
+    })
+
+
+    // save user
+    app.post('/user', async (req, res) => {
+        const user = await usersCollection.insertOne(req.body)
+        res.send(user)
+    })
+
+    // add an admin
+    app.put('/addAdmin/:email', async (req, res) => {
+        const email = req.params.email;
+        const query = await usersCollection.findOne({ email: email });
+        if (query) {
+            const updatedDoc = {
+                $set: {
+                    role: 'admin',
+                }
+            }
+            const result = await usersCollection.updateOne(query, updatedDoc);
+            res.json(result);
+        }
+        else {
+            res.status(403).json({ message: 'You do not have access.' })
+        }
+    })
+
+    // get an admin
+    app.get('/saveUser/:email', async (req, res) => {
+        const email = req.params.email;
+        const result = await usersCollection.findOne({ email: email });
+        let isAdmin = false;
+        if (result?.role === 'admin') {
+            isAdmin = true;
+        }
+        res.json({ admin: isAdmin });
+    })
+
+    // post review
+    app.post("/review", async (req, res) => {
+        const review = await reviewCollection.insertOne(req.body);
+        res.json(review);
+    })
+    // get review
+    app.get("/review", async (req, res) => {
+        const review = await reviewCollection.find({}).toArray();
+        res.json(review);
+    })
 
 
     // client.close();
